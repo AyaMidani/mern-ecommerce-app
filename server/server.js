@@ -2,10 +2,13 @@ const express=require('express');
 const mongoose=require('mongoose');
 const cookieParser=require('cookie-parser');
 const cors=require('cors');
+const dotenv = require('dotenv');
 
-mongoose.connect('mongodb+srv://ayamidani98_db_user:d7KqlXJ7gcamOY29@ecommercecluster.ktqke3h.mongodb.net/')
-.then(()=>console.log('MongoDB connected '))
-.catch(error=>console.log(error));
+dotenv.config();
+
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch(err => console.error(err));
 
 const app=express()
 const PORT=process.env.PORT || 5000;
