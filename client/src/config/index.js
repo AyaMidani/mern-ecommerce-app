@@ -37,4 +37,3 @@ export const loginFormControles = [
         type: 'password',
   }
 ]
-
