@@ -31,31 +31,33 @@ function CommonForm({FormControles, formData , setFormData , onSubmit , buttonTe
         );
         break;
 
-        case 'select':
-        element = (
-      <Select onValueChange={
-              event=> setFormData({
-                ...formData,
-                [getControlItem.name] : event.target.value
-              })
-            } value={value}>
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder={getControlItem.placeholder} />
-        </SelectTrigger>
-        <SelectContent>
-          {
-            getControlItem.options &&
-            getControlItem.options.length > 0 ?
-            getControlItem.options.map((optionitem) => 
-              <SelectItem key={optionitem.id} value={option.id}>
-                {option.label}
+        case "select":
+  element = (
+    <Select
+      value={value}
+      onValueChange={(val) =>
+        setFormData({
+          ...formData,
+          [getControlItem.name]: val,
+        })
+      }
+    >
+      <SelectTrigger className="w-full">
+        <SelectValue placeholder={getControlItem.placeholder} />
+      </SelectTrigger>
+      <SelectContent>
+        {getControlItem.options?.length
+          ? getControlItem.options.map((optionItem) => (
+              <SelectItem key={optionItem.id} value={optionItem.id}>
+                {optionItem.label}
               </SelectItem>
-            ): null
-          }
-        </SelectContent>
+            ))
+          : null}
+      </SelectContent>
     </Select>
-        );
-        break;
+  );
+  break;
+
         case 'textarea':
         element = (
           <Textarea
