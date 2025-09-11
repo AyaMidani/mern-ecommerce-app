@@ -1,10 +1,11 @@
 import { Label } from "@radix-ui/react-label";
 import { Input } from "../ui/input";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { FileIcon, UploadCloudIcon, XIcon } from "lucide-react";
 import { Button } from "../ui/button";
+import axios from "axios";
 
-function ProductImageUpload({ImageFile,setImageFile,uploadedImageUrl,setuploadedImageUrl}){
+function ProductImageUpload({ImageFile,setImageFile,uploadedImageUrl,setuploadedImageUrl,setimageLoadingState}){
     const inputRef = useRef(null)
     function handleImageFileChange(event){
         console.log(event.target.files)
@@ -26,10 +27,22 @@ function ProductImageUpload({ImageFile,setImageFile,uploadedImageUrl,setuploaded
     function handleRemoveImage(){
         setImageFile(null)
         if(inputRef.current){
-            input.current.value= ''
+            inputRef.current.value= ''
         }
     }
-
+    async function uploadImageToCloudinary() {
+        setimageLoadingState(true)
+        const data = new FormData();
+        data.append('my_file', ImageFile);
+        const response = await axios.post('http://localhost:5001/api/admin/products/upload-image', data)
+        console.log(response.data)
+        if(response.data.success) {
+            setuploadedImageUrl(response.data.result.url);
+            setimageLoadingState(false);
+        }
+    }
+    useEffect(()=>{if(ImageFile!== null) uploadImageToCloudinary();},[ImageFile])
+    
     return (
         <div className="w-full max-w-md mx-auto mt-4">
             <Label className="text-lg font-semibold mb-2 block">

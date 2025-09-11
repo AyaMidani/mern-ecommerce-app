@@ -21,9 +21,11 @@ function AdminProdcuts(){
     const [formData, setFormData]= useState(initialFormData);
     const [ImageFile,setImageFile] = useState(null);
     const [uploadedImageUrl,setuploadedImageUrl]= useState('')
+    const [imageLoadingState,setimageLoadingState]=useState(false);
     function onSubmit(){
-    }
 
+    }
+    console.log(formData);
     return(
         <Fragment>
             <div className="mb-5 w-full flex justify-end">
@@ -37,7 +39,7 @@ function AdminProdcuts(){
                     <SheetHeader>
                         <SheetTitle>Add New Product</SheetTitle>
                     </SheetHeader>
-                    <ProductImageUpload ImageFile={ImageFile} setImageFile={setImageFile} uploadedImageUrl={uploadedImageUrl} setuploadedImageUrl={setuploadedImageUrl}  />
+                    <ProductImageUpload ImageFile={ImageFile} setImageFile={setImageFile} uploadedImageUrl={uploadedImageUrl} setuploadedImageUrl={setuploadedImageUrl} setimageLoadingState={setimageLoadingState}  />
                     <div className="py-6">
                         <CommonForm formData={formData} setFormData={setFormData} FormControles={addProductFormElements} buttonText='Add' onSubmit={onSubmit}>
 
