@@ -3,8 +3,7 @@ import { registerFormControles } from "@/config";
 import { registerUser } from "@/store/auth-slice";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { data, Link , useNavigate} from "react-router-dom";
-import { unwrapResult } from '@reduxjs/toolkit';
+import { Link , useNavigate} from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 function AuthRegister() {
@@ -29,6 +28,12 @@ function AuthRegister() {
           title: data?.payload?.message,
         });
         navigate("/auth/login");
+      }
+      else{
+        toast({
+          title: data?.payload?.message,
+          variant: 'destructive'
+        });
       }
         
     })
