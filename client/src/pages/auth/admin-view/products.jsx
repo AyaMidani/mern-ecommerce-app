@@ -3,7 +3,10 @@ import CommonForm from "@/components/common/form";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { addProductFormElements } from "@/config";
-import { Fragment, useState } from "react";
+import { addNewProduct, fetchAllProducts } from "@/store/admin/products-slice";
+import { Fragment, useEffect, useState } from "react";
+import { useDispatch ,useSelector} from "react-redux";
+import { useToast } from "@/hooks/use-toast";
 
 const initialFormData ={
     image: null,
@@ -22,10 +25,37 @@ function AdminProdcuts(){
     const [ImageFile,setImageFile] = useState(null);
     const [uploadedImageUrl,setuploadedImageUrl]= useState('')
     const [imageLoadingState,setimageLoadingState]=useState(false);
-    function onSubmit(){
+    const dispatch=useDispatch();
+    const {toast}=useToast();
 
+    function onSubmit(event){
+        event.preventDefault();
+        dispatch(addNewProduct({
+            ...formData,
+            image:uploadedImageUrl
+        })).then((data)=>{
+            console.log(data)
+            if(data?.payload?.success)
+            {
+                dispatch(fetchAllProducts)
+                setImageFile(null)
+                setFormData(initialFormData)
+                setopenCreateProductDialog(false)
+                toast({
+                title: "Product Added Successfully",
+            });
+            }
+            else{
+                toast({
+                  title: data?.payload?.message,
+                  variant: 'destructive'
+            });
+        }      
+    })
     }
-    console.log(formData);
+    useEffect(()=>{
+        dispatch(fetchAllProducts())
+    },[dispatch])
     return(
         <Fragment>
             <div className="mb-5 w-full flex justify-end">
@@ -39,7 +69,7 @@ function AdminProdcuts(){
                     <SheetHeader>
                         <SheetTitle>Add New Product</SheetTitle>
                     </SheetHeader>
-                    <ProductImageUpload ImageFile={ImageFile} setImageFile={setImageFile} uploadedImageUrl={uploadedImageUrl} setuploadedImageUrl={setuploadedImageUrl} setimageLoadingState={setimageLoadingState}  />
+                    <ProductImageUpload ImageFile={ImageFile} setImageFile={setImageFile} uploadedImageUrl={uploadedImageUrl} setuploadedImageUrl={setuploadedImageUrl} setimageLoadingState={setimageLoadingState} imageLoadingState={imageLoadingState}  />
                     <div className="py-6">
                         <CommonForm formData={formData} setFormData={setFormData} FormControles={addProductFormElements} buttonText='Add' onSubmit={onSubmit}>
 
