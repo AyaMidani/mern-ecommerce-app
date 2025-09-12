@@ -7,6 +7,7 @@ import { addNewProduct, fetchAllProducts } from "@/store/admin/products-slice";
 import { Fragment, useEffect, useState } from "react";
 import { useDispatch ,useSelector} from "react-redux";
 import { useToast } from "@/hooks/use-toast";
+import AdminProductTile from "@/components/admin-view/product-tile";
 
 const initialFormData ={
     image: null,
@@ -19,7 +20,7 @@ const initialFormData ={
     totalStock: '',
 }
 
-function AdminProdcuts(){
+function AdminProducts(){
     const [openCreateProductDialog,setopenCreateProductDialog]= useState(false);
     const [formData, setFormData]= useState(initialFormData);
     const [ImageFile,setImageFile] = useState(null);
@@ -27,6 +28,7 @@ function AdminProdcuts(){
     const [imageLoadingState,setimageLoadingState]=useState(false);
     const dispatch=useDispatch();
     const {toast}=useToast();
+    const { productList } = useSelector((state)=>state.adminProducts)
 
     function onSubmit(event){
         event.preventDefault();
@@ -37,7 +39,7 @@ function AdminProdcuts(){
             console.log(data)
             if(data?.payload?.success)
             {
-                dispatch(fetchAllProducts)
+                dispatch(fetchAllProducts())
                 setImageFile(null)
                 setFormData(initialFormData)
                 setopenCreateProductDialog(false)
@@ -61,7 +63,12 @@ function AdminProdcuts(){
             <div className="mb-5 w-full flex justify-end">
                 <Button onClick={()=>setopenCreateProductDialog(true)}>Added New Product</Button>
             </div>
-            <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4"></div>
+            <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-4">
+                {
+                    productList && productList.length >0 ?
+                    productList.map(productItem => <AdminProductTile product={productItem}/>): null
+                }
+            </div>
             <Sheet open={openCreateProductDialog} onOpenChange={()=>{
                 setopenCreateProductDialog(false);
             }}>
@@ -72,7 +79,6 @@ function AdminProdcuts(){
                     <ProductImageUpload ImageFile={ImageFile} setImageFile={setImageFile} uploadedImageUrl={uploadedImageUrl} setuploadedImageUrl={setuploadedImageUrl} setimageLoadingState={setimageLoadingState} imageLoadingState={imageLoadingState}  />
                     <div className="py-6">
                         <CommonForm formData={formData} setFormData={setFormData} FormControles={addProductFormElements} buttonText='Add' onSubmit={onSubmit}>
-
                         </CommonForm>
                     </div>
                 </SheetContent>
@@ -81,4 +87,4 @@ function AdminProdcuts(){
     )
 }
 
-export default AdminProdcuts;
+export default AdminProducts;
