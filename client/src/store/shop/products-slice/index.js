@@ -23,7 +23,6 @@ const shoppingProductsSlice = createSlice({
         builder.addCase(fetchAllFilteredProducts.pending,(state)=>{
             state.isLoading=true;
             }).addCase(fetchAllFilteredProducts.fulfilled,(state,action)=>{
-                console.log(action.payload);
                 state.isLoading=false;
                 state.productList=action.payload.data;
             }).addCase(fetchAllFilteredProducts.rejected,(state)=>{

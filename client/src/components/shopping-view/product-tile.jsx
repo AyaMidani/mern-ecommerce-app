@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 import { brandOptionsMap, categoryOptionsMap } from "@/config";
 function ShoppingProductTile({product}){
     return (
-        <Card classname="w-full max-w-sm mx-auto">
+        <Card className="w-full max-w-sm mx-auto">
             <div>
                 <div className="relative">
                     <img
