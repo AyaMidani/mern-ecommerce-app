@@ -3,8 +3,35 @@ const Product = require('../../models/Products')
 
 const getFilteredProducts= async(req,res) =>{
     try {
+        const {category = [], brand = [], sortBy = "price-lowtohigh"} = req.query
+        let filters = {};
+        let sort = {}
+        if(category.length){
+            filters.category = {$in : category.split(',')}
+        }
 
-        const products = await Product.find({})
+        if(brand.length){
+            filters.brand = {$in : brand.split(',')}
+        }
+
+        switch (sortBy) {
+            case 'price-lowtohigh':
+                sort.price = 1
+                break;
+            case 'price-hightolow':
+                sort.price = -1
+                break;
+            case 'title-atoz':
+                sort.title = 1
+                break;
+            case 'title-ztoa':
+                sort.title = -1
+                break;
+            default:
+                sort.price = 1
+                break;
+        }
+        const products = await Product.find(filters).sort(sort);
         res.status(200).json({
             success: true,
             data : products
