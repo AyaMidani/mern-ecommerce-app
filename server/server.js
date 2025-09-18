@@ -6,6 +6,7 @@ const dotenv = require('dotenv');
 const authRouter= require('./routes/auth-routes');
 const adminProductsRouter = require('./routes/admin/products-routes')
 const shopProductsRouter = require('./routes/shop/products-routes')
+const shopCartRouter = require('./routes/shop/cart-routes')
 
 dotenv.config();
 
@@ -36,4 +37,5 @@ app.use(express.json());
 app.use('/api/auth',authRouter)
 app.use('/api/admin/products',adminProductsRouter)
 app.use('/api/shop/products',shopProductsRouter)
+app.use('/api/shop/cart',shopCartRouter)
 app.listen(PORT,()=>console.log(`Server is running on Port ${PORT}`))
