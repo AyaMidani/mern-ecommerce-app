@@ -9,12 +9,12 @@ const initialState = {
 
 export const addToCart= createAsyncThunk('cart/addToCart',
   async({userId,productId,quantity})=>{ 
-    const response= await axios.post('http://localhost:5001/api/shop/cart/add/',{userId,productId,quantity});
+    const response= await axios.post('http://localhost:5001/api/shop/cart/add',{userId,productId,quantity});
     return response?.data;
   }
 )
 
-export const fetchCardItems= createAsyncThunk('cart/fetchCardItems',
+export const fetchCartItems= createAsyncThunk('cart/fetchCartItems',
   async({userId})=>{ 
     const response= await axios.get(`http://localhost:5001/api/shop/cart/get/${userId}`);
     return response?.data;
@@ -22,7 +22,7 @@ export const fetchCardItems= createAsyncThunk('cart/fetchCardItems',
 )
 
 export const deleteCartItem= createAsyncThunk('cart/deleteCartItem',
-  async({userId,productId,quantity})=>{ 
+  async({userId,productId})=>{
     const response= await axios.delete(`http://localhost:5001/api/shop/cart/${userId}/${productId}`);
     return response?.data;
   }
@@ -48,12 +48,12 @@ const shoppingCartSlice = createSlice({
             }).addCase(addToCart.rejected,(state)=>{
                 state.isLoading=false;
                 state.cartItems=[];
-            }).addCase(fetchCardItems.pending,(state)=>{
+            }).addCase(fetchCartItems.pending,(state)=>{
             state.isLoading=true;
-            }).addCase(fetchCardItems.fulfilled,(state,action)=>{
+            }).addCase(fetchCartItems.fulfilled,(state,action)=>{
                 state.isLoading=false;
                 state.cartItems=action.payload.data;
-            }).addCase(fetchCardItems.rejected,(state)=>{
+            }).addCase(fetchCartItems.rejected,(state)=>{
                 state.isLoading=false;
                 state.cartItems=null;
             }).addCase(deleteCartItem.pending,(state)=>{

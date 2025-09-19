@@ -2,7 +2,8 @@ import ProductFilter from "@/components/shopping-view/filter";
 import { Button } from "@/components/ui/button";
 import { sortOptions } from "@/config";
 import { useDispatch, useSelector} from "react-redux";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -15,6 +16,7 @@ import { fetchAllFilteredProducts, fetchProductDetails } from "@/store/shop/prod
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import {createSearchParams, useSearchParams} from "react-router-dom";
 import ProductDetailsDialog from "@/components/shopping-view/product-details";
+import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 
 function createSearchParamsHelper(filterParams){
     const queryParams = [];
@@ -30,10 +32,13 @@ function createSearchParamsHelper(filterParams){
 function ShoppingListing(){
      const dispatch=useDispatch();
      const { productList, productDetails} = useSelector((state)=>state.shopProducts);
+     const { user } = useSelector((state)=>state.auth);
      const [filters, setFilters] = useState({});
      const [sort, setSort] = useState(null);
      const [searchParams,setSearchParams] = useSearchParams()
      const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+     const {toast}=useToast();
+
      function handleSort(value){
         setSort(value);
      }
@@ -65,6 +70,17 @@ function ShoppingListing(){
         dispatch(fetchProductDetails(getCurrentProductId))
     }
 
+    function handleAddToCart(getCurrentProductId){
+        dispatch(addToCart({userId: user?.id,productId:getCurrentProductId,quantity:1}))
+        .then((data) =>{
+            if(data?.payload?.success){
+                dispatch(fetchCartItems({userId: user?.id}));
+                toast({
+                    title: 'Product is added to cart'
+                })
+            }
+        })
+    }
     useEffect(()=>{
              setSort("price-lowtohigh");
              setFilters(JSON.parse(sessionStorage.getItem("filters"))|| {})
@@ -116,12 +132,13 @@ function ShoppingListing(){
                     productList.map((productItem) => (
             <ShoppingProductTile
                     product={productItem}
-                    handleGetProductDetails={handleGetProductDetails}
+                    handleGetProductDetails={handleGetProductDetails} 
+                    handleAddToCart={handleAddToCart}
             />)) : null
             }
                 </div>
             </div>
-            <ProductDetailsDialog open={openDetailsDialog} setOpen={setOpenDetailsDialog} productDetails={productDetails} />
+            <ProductDetailsDialog open={openDetailsDialog} setOpen={setOpenDetailsDialog} productDetails={productDetails}/>
         </div>
     )
 }
