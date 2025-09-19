@@ -131,7 +131,7 @@ function ShoppingListing(){
                     productList && productList.length > 0 ?
                     productList.map((productItem) => (
             <ShoppingProductTile
-                    product={productItem}
+                    product={productItem} 
                     handleGetProductDetails={handleGetProductDetails} 
                     handleAddToCart={handleAddToCart}
             />)) : null
