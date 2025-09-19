@@ -14,6 +14,8 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import UserCartWrapper from "./cart-wrapper";
+import { useState } from "react";
 
 function MenuItems(){
     return <nav className="flex flex-col mb-3 lg:mb-0 lg:items-center gap-6 lg:flex-row">
@@ -25,16 +27,20 @@ function MenuItems(){
 }
 function HeaderRightContent(){
      const { user } = useSelector((state)=>state.auth);
+     const [openCartSheet,setopenCartSheet] = useState(false)
      const navigate =useNavigate();
      const dispatch = useDispatch();
      function handleLogout(){
         dispatch(logoutUser())
      }
     return <div className="flex lg:items-center lg:flex-row flex-col gap-4">
-        <Button variant="outline" size="icon">
+        <Sheet open={openCartSheet} onOpenChange={()=> setopenCartSheet(false)}>
+            <Button onClick={()=>setopenCartSheet(true)} variant="outline" size="icon">
             <ShoppingCart className="w-6 h-6" />
             <span className="sr-only">User Cart</span>
         </Button>
+        <UserCartWrapper />
+        </Sheet>
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Avatar className="bg-black">
