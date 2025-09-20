@@ -6,16 +6,22 @@ import { Airplay, BabyIcon, ChevronLeftIcon, ChevronRightIcon, CloudLightning, H
 import { Card, CardContent } from '@/components/ui/card'
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector} from "react-redux";
-import { fetchAllFilteredProducts } from '@/store/shop/products-slice';
+import { fetchAllFilteredProducts,fetchProductDetails } from '@/store/shop/products-slice';
 import ShoppingProductTile from '@/components/shopping-view/product-tile';
-import { Link , useNavigate} from "react-router-dom";
+import { useNavigate} from "react-router-dom";
+import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
+import { useToast } from "@/hooks/use-toast";   
+import ProductDetailsDialog from "@/components/shopping-view/product-details";
 
 function ShoppingHome(){
     const slides = [bannerOne,bannerTwo,bannerThree];
     const [currentSlide,setCurrentSlide] = useState(0);
-    const { productList} = useSelector((state)=>state.shopProducts);
+    const {productList,productDetails} = useSelector((state)=>state.shopProducts);
+    const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
+    const { user } = useSelector((state)=>state.auth);
     const navigate=useNavigate();
     const dispatch=useDispatch();
+    const {toast}=useToast();
 
     const brandsWithIcon =[
     { id: "nike", label: "Nike", icon : Shirt },
@@ -41,17 +47,35 @@ function ShoppingHome(){
         sessionStorage.setItem('filters',JSON.stringify(currentFilter));
         navigate(`/shop/listing`)
     }
-
-
+    function handleGetProductDetails(getCurrentProductId){
+            dispatch(fetchProductDetails(getCurrentProductId))
+    }
+    function handleAddToCart(getCurrentProductId){
+            dispatch(addToCart({userId: user?.id,productId:getCurrentProductId,quantity:1}))
+            .then((data) =>{
+                if(data?.payload?.success){
+                    dispatch(fetchCartItems({userId: user?.id}));
+                    toast({
+                        title: 'Product is added to cart'
+                    })
+                }
+            })
+    }
     useEffect(()=>{
         const timer = setInterval(()=>{
             setCurrentSlide(prevSlide =>(prevSlide+1) %slides.length)
         },5000)
         return ()=>clearInterval(timer)
     },[])
+
     useEffect(()=>{
         dispatch(fetchAllFilteredProducts({filterParams:{},sortParams: 'price-lowtohigh'}))
     },[dispatch])
+
+    useEffect(()=>{
+        if(productDetails !==null) setOpenDetailsDialog(true)
+    },[productDetails])
+
     return(
         <div className="flex flex-col min-h-screen">
             <div className="relative w-full h-[600px] overflow-hidden">
@@ -108,12 +132,13 @@ function ShoppingHome(){
                     <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'>
                         {
                             productList && productList.length > 0 ?
-                            productList.map(productItem => <ShoppingProductTile product={productItem}/>)
+                            productList.map(productItem => <ShoppingProductTile handleAddToCart={handleAddToCart} handleGetProductDetails={handleGetProductDetails} product={productItem}/>)
                             : null
                         }
                     </div>
                 </div>
             </section>
+            <ProductDetailsDialog open={openDetailsDialog} setOpen={setOpenDetailsDialog} productDetails={productDetails}/>
         </div>
     )
 }
