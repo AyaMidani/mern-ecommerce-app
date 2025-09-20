@@ -12,6 +12,7 @@ import NotFound from "./pages/not-found";
 import ShoppingHome from "./pages/auth/shopping-view/home";
 import ShoppingListing from "./pages/auth/shopping-view/listing";
 import ShoppingCheckout from "./pages/auth/shopping-view/checkout";
+import Account from "./pages/auth/shopping-view/account";
 import CheckAuth from "./components/common/check-auth";
 import UnauthPage from "./pages/unauth-page";
 import {useSelector , useDispatch} from "react-redux";
@@ -61,7 +62,7 @@ function App() {
           <Route path="home" element={<ShoppingHome />}/>
           <Route path="listing" element={<ShoppingListing />}/>
           <Route path="checkout" element={<ShoppingCheckout />}/>
-          <Route path="account" element={<ShoppingCheckout />}/>
+          <Route path="account" element={<Account />}/>
         </Route>
         <Route path="/unauth-page" element={< UnauthPage/>}></Route>
         <Route path="/*" element={< NotFound/>}></Route>
