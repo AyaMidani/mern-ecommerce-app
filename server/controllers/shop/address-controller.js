@@ -34,7 +34,7 @@ const fetchAllAddress  = async(req,res)=>{
             message: "User id is required!",
         })
     }
-    const addressList = Address.find({userId})
+    const addressList = await Address.find({userId})
     res.status(200).json({
         success: true,
         data: addressList
@@ -42,7 +42,7 @@ const fetchAllAddress  = async(req,res)=>{
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Error occured",
+            message: "Error occurred",
         });
     }
 }
@@ -75,7 +75,7 @@ const editAddress  = async(req,res)=>{
     }  catch (error) {
         res.status(500).json({
             success: false,
-            message: "Error occured",
+            message: "Error occurred",
         });
     }
 }
@@ -105,7 +105,7 @@ const deleteAddress  = async(req,res)=>{
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: "Error occured",
+            message: "Error occurred",
         });
     }
 }

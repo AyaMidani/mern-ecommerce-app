@@ -29,8 +29,8 @@ export const editAddress= createAsyncThunk('address/editAddress',
 )
 
 export const deleteAddress= createAsyncThunk('address/deleteAddress',
-  async({userId,addressId})=>{ 
-    const response= await axios.post(`http://localhost:5001/api/shop/address/delete/${userId}/${addressId}`);
+  async({userId,addressId})=>{
+    const response= await axios.delete(`http://localhost:5001/api/shop/address/delete/${userId}/${addressId}`);
     return response?.data;
   }
 )
@@ -43,12 +43,10 @@ const addressSlice = createSlice({
             state.isLoading=true;
             }).addCase(addNewAddress.fulfilled,(state,action)=>{
                 state.isLoading=false;
-                state.addressList=action.payload.data;
             }).addCase(addNewAddress.rejected,(state)=>{
                 state.isLoading=false;
-                state.addressList=[];
             }).addCase(fetchAllAddresses.pending,(state)=>{
-            state.isLoading=true;
+                state.isLoading=true;
             }).addCase(fetchAllAddresses.fulfilled,(state,action)=>{
                 state.isLoading=false;
                 state.addressList=action.payload.data;
