@@ -4,7 +4,7 @@ import UserCartItemsContent from "./cart-items-content";
 import { useNavigate } from "react-router-dom";
 
 
-function UserCartWrapper({cartItems}){
+function UserCartWrapper({cartItems,setopenCartSheet}){
     const navigate=useNavigate();
     const totalCartAmount = cartItems && cartItems.length > 0 ?
     cartItems.reduce((sum,currentItem)=> sum + (
@@ -29,7 +29,7 @@ function UserCartWrapper({cartItems}){
                 <span className="font-bold">${totalCartAmount}</span>
             </div>
         </div>
-        <Button onClick={()=> navigate('/shop/checkout')} className="w-full mt-6">Checkout</Button>
+        <Button onClick={()=> {navigate('/shop/checkout'); setopenCartSheet(false)}} className="w-full mt-6">Checkout</Button>
     </SheetContent>
 );
 }
