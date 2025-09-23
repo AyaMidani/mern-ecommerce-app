@@ -25,7 +25,7 @@ function ShoppingOrders(){
     function handleFetchOrderDetails(getId){
         dispatch(getOrderDetails(getId))
     }
-    console.log(orderDetails,"orderDetails")
+    
     useEffect(()=>{
         dispatch(getAllOrdersByUserId(user?.id))
     },[dispatch])
@@ -71,7 +71,7 @@ function ShoppingOrders(){
                                     dispatch(resetOrderState())
                                 }}>
                                     <Button onClick={()=>handleFetchOrderDetails(orderItem?._id)}>View Details</Button>
-                                    <ShoppingOrderDetailsView />
+                                    <ShoppingOrderDetailsView orderDetails={orderDetails} />
                                 </Dialog>
                             </TableCell>
                         </TableRow>
