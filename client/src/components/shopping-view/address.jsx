@@ -14,7 +14,7 @@ const initialAddressFormData={
     pincode: '',
     notes: ''
 }
-function Address(){
+function Address({setcurrentSelectedAddress}){
     const [formData,setFormData]= useState(initialAddressFormData);
     const dispatch = useDispatch();
     const { user } = useSelector((state)=>state.auth);
@@ -94,7 +94,7 @@ function Address(){
         <div className="mb-5 p-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
             {
                 addressList && addressList.length > 0 ?
-                addressList.map(singleAddress => <AddressCard addressInfo={singleAddress} handleDeleteAddress={handleDeleteAddress} handleEditAddress={handleEditAddress}/>) : null
+                addressList.map(singleAddress => <AddressCard addressInfo={singleAddress} handleDeleteAddress={handleDeleteAddress} handleEditAddress={handleEditAddress} setcurrentSelectedAddress={setcurrentSelectedAddress}/>) : null
             }
         </div>
         <CardHeader>

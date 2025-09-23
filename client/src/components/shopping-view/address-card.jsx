@@ -3,9 +3,9 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../ui/card
 import { Label } from "../ui/label";
 
 
-function AddressCard({addressInfo,handleDeleteAddress,handleEditAddress}){
+function AddressCard({addressInfo,handleDeleteAddress,handleEditAddress,setcurrentSelectedAddress}){
     return (
-        <Card>
+        <Card onClick={setcurrentSelectedAddress ? ()=> setcurrentSelectedAddress(addressInfo): null}>
             <CardContent className="grid p-4 gap-4">
                 <Label>Address: {addressInfo?.address}</Label>
                 <Label>City: {addressInfo?.city}</Label>

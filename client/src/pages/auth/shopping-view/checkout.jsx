@@ -1,25 +1,67 @@
 import Address from '@/components/shopping-view/address';
 import img from '../../../assets/account.jpg'
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
 import UserCartItemsContent from '@/components/shopping-view/cart-items-content';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { createNewOrder } from '@/store/shop/order-slice';
+import { TruckElectric } from 'lucide-react';
 
 
 function ShoppingCheckout(){
-    const {cartItems} = useSelector(state=> state.shopCart)
+    const { cartItems } = useSelector(state=> state.shopCart)
+    const { user } = useSelector((state)=>state.auth);
+    const [currentSelectedAddress,setcurrentSelectedAddress]= useState(null)
+    const [isPaymentStart,setIsPaymentStart]= useState(null)
+    const {paymentPageUrl} = useSelector(state=> state.shopOrder)
+    const dispatch=useDispatch();
 
     const totalCartAmount = cartItems && cartItems.items.length > 0 ?
-    cartItems.items.reduce((sum,currentItem)=> sum + (
+        cartItems.items.reduce((sum,currentItem)=> sum + (
         currentItem?.salePrice > 0 ? currentItem?.salePrice : currentItem?.price 
-    ) * currentItem?.quantity,0): 0
+        ) * currentItem?.quantity,0): 0
 
+    function handleInitiatePayment(){
+        const orderData= {  
+            userId : user?.id, 
+            cartItems : cartItems.items.map(singleCartItem=>({
+                productId : singleCartItem?.productId,
+                title: singleCartItem?.title,
+                image: singleCartItem?.image,
+                price: singleCartItem?.salePrice > 0 ? singleCartItem?.salePrice : singleCartItem?.price ,
+                quantity: singleCartItem?.quantity
+            })), 
+            addressInfo: {
+                addressId: currentSelectedAddress?._id,
+                address: currentSelectedAddress?.address,
+                city: currentSelectedAddress?.city,
+                pincode: currentSelectedAddress?.pincode,
+                phone: currentSelectedAddress?.phone,
+                notes: currentSelectedAddress?.notes,
+            },
+            orderStatus: 'pending', paymentMethod: 'iyzico', paymentStatus: 'pending',
+            totalAmount: totalCartAmount, orderDate: new Date(), orderUpdateDate: new Date(),paymentId: '', payerId: ''
+    }
+    dispatch(createNewOrder(orderData)).then((data)=>{
+        console.log(data,"whattt")
+        if(data?.payload.success){
+            setIsPaymentStart(true)
+        }
+        else{
+            setIsPaymentStart(false)
+        }
+    })
+    }
+    if(paymentPageUrl){
+        window.location.href= paymentPageUrl
+    }
     return(
         <div className="flex flex-col">
             <div className="relative h-[300px] w-full overflow-hidden">
                 <img src={img} className='h-full w-full object-cover object-center'/>
             </div>
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-5 mt-5 p-5'>
-                <Address />
+                <Address setcurrentSelectedAddress={setcurrentSelectedAddress} />
                 <div className='flex flex-col gap-4'>
                     {
                          cartItems && cartItems.items && cartItems.items.length > 0 ?
@@ -32,7 +74,7 @@ function ShoppingCheckout(){
                 </div>
             </div>
             <div className='mt-4 w-full'>
-                <Button className="w-full">Checkout with Paypal</Button>
+                <Button onClick={handleInitiatePayment} className="w-full">Checkout with iyzico</Button>
             </div>
         </div>
     </div>
