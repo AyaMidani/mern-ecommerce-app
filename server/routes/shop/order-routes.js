@@ -1,13 +1,14 @@
-// routes/shop/order-routes.js
 const express = require('express');
 const mongoose = require('mongoose');
-const { createOrder, capturePayment } = require('../../controllers/shop/order-controller');
+const { createOrder, capturePayment, getAllOrdersByUser,getOrderDetails } = require('../../controllers/shop/order-controller');
 const Order = require('../../models/Order');
 
 const router = express.Router();
 
 router.post('/create', createOrder);
 router.post('/capture-payment', capturePayment);
+router.get('/list/:userId', getAllOrdersByUser);
+router.get('/details/:id', getOrderDetails);
 
 router.get('/:id', async (req, res) => {
   const { id } = req.params;

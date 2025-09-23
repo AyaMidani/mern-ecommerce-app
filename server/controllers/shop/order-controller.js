@@ -182,6 +182,52 @@ const paymentId = result?.paymentId || null;
     const failureBase = process.env.FRONTEND_FAILURE_URL || 'http://localhost:5173/shop/failure';
     return res.redirect(failureBase);
   }
-};
+}
 
-module.exports = { createOrder, capturePayment };
+const getAllOrdersByUser = async(req,res)=>{
+    try {
+      const {userId} = req.params;
+      const orders = await Order.find({userId})
+      
+      if(!orders.length){
+        res.status(404).json({
+            success: false,
+            message: "No Orders found!",
+        });
+      }
+      res.status(200).json({
+            success: true,
+            data: orders,
+        });
+
+    } catch (error) {
+       res.status(500).json({
+            success: false,
+            message: "Error occured",
+        });
+    }
+  }
+
+  const getOrderDetails = async(req,res)=>{
+    try {
+      const {id} = req.params;
+      const order = await Order.findById(id);
+      if(!order.length){
+        res.status(404).json({
+            success: false,
+            message: "Order Not found!",
+        });
+      }
+      res.status(200).json({
+            success: true,
+            data: order,
+        });
+    } catch (error) {
+       res.status(500).json({
+            success: false,
+            message: "Error occured",
+        });
+    }
+  } 
+
+module.exports = { createOrder, capturePayment,getAllOrdersByUser,getOrderDetails};

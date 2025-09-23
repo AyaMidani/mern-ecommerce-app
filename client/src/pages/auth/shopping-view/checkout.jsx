@@ -5,6 +5,7 @@ import UserCartItemsContent from '@/components/shopping-view/cart-items-content'
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { createNewOrder } from '@/store/shop/order-slice';
+import { useToast } from '@/hooks/use-toast';
 
 
 function ShoppingCheckout(){
@@ -14,6 +15,7 @@ function ShoppingCheckout(){
     const [isPaymentStart,setIsPaymentStart]= useState(null)
     const {paymentPageUrl} = useSelector(state=> state.shopOrder)
     const dispatch=useDispatch();
+    const {toast}=useToast()
 
     const totalCartAmount = cartItems && cartItems.items.length > 0 ?
         cartItems.items.reduce((sum,currentItem)=> sum + (
@@ -21,6 +23,20 @@ function ShoppingCheckout(){
         ) * currentItem?.quantity,0): 0
 
     function handleInitiatePayment(){
+        if(totalCartAmount === 0){
+            toast({
+                title: "Your cart is empty. Please add items to proceed",
+                variant: 'destructive'
+            });
+        return ;
+        }
+        if(currentSelectedAddress === null){
+            toast({
+                title: "Please select one address to proceed.",
+                variant: 'destructive'
+            });
+        return ;
+        }
         const orderData= {  
             userId : user?.id, 
             cartId: cartItems?._id,
