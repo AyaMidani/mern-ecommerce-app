@@ -212,7 +212,7 @@ const getAllOrdersByUser = async(req,res)=>{
     try {
       const {id} = req.params;
       const order = await Order.findById(id);
-      if(!order.length){
+      if(!order){
         res.status(404).json({
             success: false,
             message: "Order Not found!",

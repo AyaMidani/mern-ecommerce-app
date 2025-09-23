@@ -53,7 +53,7 @@ export const getAllOrdersByUserId= createAsyncThunk('order/getAllOrdersByUserId'
 )
 
 export const getOrderDetails= createAsyncThunk('order/getOrderDetails',
-  async({id})=>{
+  async(id)=>{
     const response= await axios.get(`http://localhost:5001/api/shop/order/details/${id}`);
     return response?.data;
   }
@@ -71,6 +71,7 @@ const shoppingOrderSlice = createSlice({
       state.token = null;
       state.paymentPageUrl = null;
       state.order = null;
+      state.orderDetails = null;
     }
   },
   extraReducers: (builder) => {

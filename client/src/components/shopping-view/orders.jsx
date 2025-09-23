@@ -11,7 +11,7 @@ import {
 import ShoppingOrderDetailsView from "./order-details";
 import { useEffect, useState } from "react";
 import { useDispatch ,useSelector} from "react-redux";
-import { getAllOrdersByUserId } from "@/store/shop/order-slice";
+import { getAllOrdersByUserId, getOrderDetails, resetOrderState } from "@/store/shop/order-slice";
 import { Badge } from "../ui/badge";
 
 
@@ -20,12 +20,22 @@ function ShoppingOrders(){
     const [openDetailDialog,setopenDetailDialog]= useState(false);
     const dispatch = useDispatch();
     const { user } = useSelector((state)=>state.auth);
-    const { orderList } = useSelector((state)=>state.shopOrder);
+    const { orderList , orderDetails} = useSelector((state)=>state.shopOrder);
 
+    function handleFetchOrderDetails(getId){
+        dispatch(getOrderDetails(getId))
+    }
+    console.log(orderDetails,"orderDetails")
     useEffect(()=>{
         dispatch(getAllOrdersByUserId(user?.id))
     },[dispatch])
-    console.log(orderList)
+
+
+    useEffect(()=>{
+        if(orderDetails !== null) setopenDetailDialog(true)
+    },[orderDetails])
+
+
     return (
         <Card>
             <CardHeader>
@@ -56,9 +66,12 @@ function ShoppingOrders(){
                             </TableCell>
                             <TableCell>${orderItem?.totalAmount}</TableCell>
                             <TableCell>
-                                <Dialog open={openDetailDialog} setopenDetailDialog={setopenDetailDialog}>
-                                    <Button onClick={()=>setopenDetailDialog(true)}>View Details</Button>
-                                    <ShoppingOrderDetailsView/>
+                                <Dialog open={openDetailDialog} onOpenChange={()=>{
+                                    setopenDetailDialog(false)
+                                    dispatch(resetOrderState())
+                                }}>
+                                    <Button onClick={()=>handleFetchOrderDetails(orderItem?._id)}>View Details</Button>
+                                    <ShoppingOrderDetailsView />
                                 </Dialog>
                             </TableCell>
                         </TableRow>
