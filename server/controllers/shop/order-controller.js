@@ -2,6 +2,7 @@
 const Iyzipay = require('iyzipay');
 const iyzico = require('../../helpers/iyzipay');
 const Order = require('../../models/Order');
+const Cart = require('../../models/Cart');
 
 // POST /api/shop/order/create
 const createOrder = async (req, res) => {
@@ -10,17 +11,18 @@ const createOrder = async (req, res) => {
       userId, cartItems, addressInfo,
       orderStatus, paymentMethod, paymentStatus,
       totalAmount, orderDate, orderUpdateDate,
-      paymentId, payerId
+      paymentId, payerId, cartId
     } = req.body;
 
     if (!userId || !Array.isArray(cartItems) || cartItems.length === 0 || totalAmount == null) {
       return res.status(400).json({ success:false, message:'userId, cartItems, totalAmount are required' });
     }
 
-    // Create order first (pending)
+    // 1) Create order (pending)
     const order = new Order({
       userId,
-      CartItems: cartItems,          // keep your schema field names
+      cartId,                               // only if your Order schema has this
+      CartItems: cartItems,                 // keep your schema field name
       address: addressInfo,
       orderStatus: orderStatus || 'pending',
       paymentMethod: paymentMethod || 'iyzico',
@@ -33,7 +35,7 @@ const createOrder = async (req, res) => {
     });
     await order.save();
 
-    // Build iyzico basket (prices MUST be strings with 2 decimals)
+    // 2) Basket (prices MUST be "xx.xx" strings)
     const basketItems = cartItems.map((it, i) => {
       const unit = Number(it.price || 0);
       const qty  = Number(it.quantity || 1);
@@ -41,12 +43,12 @@ const createOrder = async (req, res) => {
         id: String(it.productId || `SKU${i + 1}`),
         name: it.title || 'Item',
         category1: 'General',
-        itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL, // constant
-        price: (unit * qty).toFixed(2)               // string
+        itemType: Iyzipay.BASKET_ITEM_TYPE.PHYSICAL,
+        price: (unit * qty).toFixed(2)
       };
     });
 
-    // price/paidPrice must equal the sum of item prices
+    // price/paidPrice must equal sum of item prices
     let priceStr = Number(totalAmount).toFixed(2);
     const itemsSum = basketItems.reduce((s, bi) => s + Number(bi.price), 0).toFixed(2);
     if (itemsSum !== priceStr) priceStr = itemsSum;
@@ -61,7 +63,7 @@ const createOrder = async (req, res) => {
       currency: Iyzipay.CURRENCY.TRY,
       basketId: conversationId,
       paymentGroup: Iyzipay.PAYMENT_GROUP.PRODUCT,
-      callbackUrl: process.env.IYZI_CALLBACK_URL,   // e.g. http://localhost:5001/api/shop/order/capture-payment
+      callbackUrl: `${process.env.IYZI_CALLBACK_URL}?orderId=${conversationId}`,
       enabledInstallments: [1, 2, 3, 6, 9, 12],
       buyer: {
         id: String(userId),
@@ -69,8 +71,8 @@ const createOrder = async (req, res) => {
         surname: addressInfo?.surname || 'Soyad',
         gsmNumber: addressInfo?.phone || '+905555555555',
         email: addressInfo?.email || 'test@example.com',
-        identityNumber: '74300864791',              // iyzico’s common sandbox TCKN
-        ip: '85.34.78.112',                         // don’t send ::1 from localhost
+        identityNumber: '74300864791',
+        ip: '85.34.78.112',
         registrationAddress: addressInfo?.address || 'Istanbul',
         city: addressInfo?.city || 'Istanbul',
         country: 'Turkey'
@@ -91,23 +93,21 @@ const createOrder = async (req, res) => {
     };
 
     iyzico.checkoutFormInitialize.create(payload, (err, result) => {
-      console.log('IYZI INIT RESP:', JSON.stringify({ err, result }, null, 2)); // keep for debugging
-
+      console.log('IYZI INIT RESP:', JSON.stringify({ err, result }, null, 2));
       if (err || result?.status !== 'success') {
         return res.status(500).json({
           success: false,
           message: result?.errorMessage || err?.message || 'Error while initializing iyzico payment'
         });
       }
-
       const html = Buffer.from(result.checkoutFormContent, 'base64').toString('utf8');
 
       return res.status(201).json({
         success: true,
-        paymentPageUrl: result.paymentPageUrl,
-        html,
         orderId: order._id,
-        token: result.token
+        token: result.token,
+        html,                                  // iframe option
+        paymentPageUrl: result.paymentPageUrl, // redirect option
       });
     });
   } catch (error) {
@@ -125,32 +125,62 @@ const capturePayment = async (req, res) => {
     iyzico.checkoutForm.retrieve({ token }, async (err, result) => {
       console.log('IYZI RETRIEVE RESP:', JSON.stringify({ err, result }, null, 2));
 
-      const ok = !err && result?.status === 'success' && result?.paymentStatus === 'SUCCESS';
-      const conversationId = result?.conversationId;
-      const paymentId = result?.paymentId;
+      // in capturePayment
+const ok = !err && result?.status === 'success' && result?.paymentStatus === 'SUCCESS';
+
+const conversationId =
+  result?.conversationId
+  || req.query.orderId           // from your callbackUrl ?orderId=...
+  || result?.basketId;           // fallback when conversationId is omitted
+
+const paymentId = result?.paymentId || null;
+
+// ... update order with conversationId ...
+
 
       if (conversationId) {
-        await Order.findByIdAndUpdate(
+        const orderDoc = await Order.findByIdAndUpdate(
           conversationId,
           {
             paymentStatus: ok ? 'paid' : 'failed',
             orderStatus:   ok ? 'paid' : 'failed',
-            paymentId: paymentId || null,
+            paymentId,
             orderUpdateDate: new Date()
           },
           { new: true }
-        );
+        ).lean();
+
+        if (ok && orderDoc) {
+          if (orderDoc.cartId) {
+            await Cart.findByIdAndDelete(orderDoc.cartId).catch(() => {});
+          } else if (orderDoc.userId) {
+            await Cart.findOneAndUpdate(
+              { userId: orderDoc.userId },
+              { $set: { items: [] } } // adjust if your Cart schema uses a different field
+            ).catch(() => {});
+          }
+        }
       }
 
-      return res.redirect(
-        ok
-          ? (process.env.FRONTEND_SUCCESS_URL || 'http://localhost:5173/checkout/success')
-          : (process.env.FRONTEND_FAILURE_URL || 'http://localhost:5173/checkout/failure')
-      );
+      // Build success/failure URLs with params
+      const successBase = process.env.FRONTEND_SUCCESS_URL || 'http://localhost:5173/shop/iyzico-return';
+      const failureBase = process.env.FRONTEND_FAILURE_URL || 'http://localhost:5173/shop/failure';
+
+      const successUrl = new URL(successBase);
+      const failureUrl = new URL(failureBase);
+
+      if (conversationId) {
+        successUrl.searchParams.set('orderId', conversationId);
+        failureUrl.searchParams.set('orderId', conversationId);
+      }
+      if (paymentId) successUrl.searchParams.set('paymentId', paymentId);
+
+      return res.redirect(ok ? successUrl.toString() : failureUrl.toString());
     });
   } catch (error) {
     console.error(error);
-    return res.redirect(process.env.FRONTEND_FAILURE_URL || 'http://localhost:5173/checkout/failure');
+    const failureBase = process.env.FRONTEND_FAILURE_URL || 'http://localhost:5173/shop/failure';
+    return res.redirect(failureBase);
   }
 };
 

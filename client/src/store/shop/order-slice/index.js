@@ -5,9 +5,10 @@ const initialState = {
   isLoading: false,
   error: null,
   orderId: null,
-  html: '', 
+  html: '',
   token: null,
   paymentPageUrl: null,
+  order: null,
 };
 
 export const createNewOrder = createAsyncThunk(
@@ -27,6 +28,21 @@ export const createNewOrder = createAsyncThunk(
   }
 );
 
+export const fetchOrderById = createAsyncThunk(
+  'order/fetchOrderById',
+  async (orderId, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.get(`http://localhost:5001/api/shop/order/${orderId}`, { withCredentials: true });
+      if (!data?.success || !data?.order) {
+        return rejectWithValue('Order not found');
+      }
+      return data.order; // <- return the order doc
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
 const shoppingOrderSlice = createSlice({
   name: 'shoppingOrderSlice',
   initialState,
@@ -37,6 +53,8 @@ const shoppingOrderSlice = createSlice({
       state.orderId = null;
       state.html = '';
       state.token = null;
+      state.paymentPageUrl = null;
+      state.order = null;
     }
   },
   extraReducers: (builder) => {
@@ -59,6 +77,18 @@ const shoppingOrderSlice = createSlice({
         state.html = '';
         state.token = null;
         state.paymentPageUrl = null;
+      }).addCase(fetchOrderById.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchOrderById.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.order = action.payload;
+        state.orderId = action.payload?._id || state.orderId;
+      })
+      .addCase(fetchOrderById.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload || 'Failed to load order';
       });
   }
 });

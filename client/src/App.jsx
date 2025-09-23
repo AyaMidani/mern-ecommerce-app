@@ -19,6 +19,10 @@ import {useSelector , useDispatch} from "react-redux";
 import { useEffect } from "react";
 import { checkAuth } from "./store/auth-slice";
 import { Skeleton } from "@/components/ui/skeleton"
+import ShoppingAccount from "./pages/auth/shopping-view/account";
+import IyzicoReturnPage from "./pages/auth/shopping-view/iyzico-return";
+import PaymentSuccessPage from "./pages/auth/shopping-view/payment-success";
+import PaymentFailurePage from "./pages/auth/shopping-view/payment-failure";
 
 
 function App() {
@@ -62,7 +66,10 @@ function App() {
           <Route path="home" element={<ShoppingHome />}/>
           <Route path="listing" element={<ShoppingListing />}/>
           <Route path="checkout" element={<ShoppingCheckout />}/>
-          <Route path="account" element={<Account />}/>
+          <Route path="account" element={<ShoppingAccount />}/>
+          <Route path="iyzico-return" element={<IyzicoReturnPage />}/>
+          <Route path="payment-success" element={<PaymentSuccessPage />}/>
+          <Route path="payment-failure" element={<PaymentFailurePage />}/>
         </Route>
         <Route path="/unauth-page" element={< UnauthPage/>}></Route>
         <Route path="/*" element={< NotFound/>}></Route>

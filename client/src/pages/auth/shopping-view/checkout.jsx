@@ -5,7 +5,6 @@ import UserCartItemsContent from '@/components/shopping-view/cart-items-content'
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { createNewOrder } from '@/store/shop/order-slice';
-import { TruckElectric } from 'lucide-react';
 
 
 function ShoppingCheckout(){
@@ -24,6 +23,7 @@ function ShoppingCheckout(){
     function handleInitiatePayment(){
         const orderData= {  
             userId : user?.id, 
+            cartId: cartItems?._id,
             cartItems : cartItems.items.map(singleCartItem=>({
                 productId : singleCartItem?.productId,
                 title: singleCartItem?.title,
@@ -45,6 +45,7 @@ function ShoppingCheckout(){
     dispatch(createNewOrder(orderData)).then((data)=>{
         console.log(data,"whattt")
         if(data?.payload.success){
+            sessionStorage.setItem('currentOrderId', data.payload.orderId);
             setIsPaymentStart(true)
         }
         else{
@@ -52,6 +53,7 @@ function ShoppingCheckout(){
         }
     })
     }
+    console.log(paymentPageUrl)
     if(paymentPageUrl){
         window.location.href= paymentPageUrl
     }
