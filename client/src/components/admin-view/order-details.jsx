@@ -4,7 +4,9 @@ import { Separator } from "../ui/separator";
 import CommonForm from "../common/form";
 import { useState } from "react";
 import { Badge } from "../ui/badge";
-import { useSelector} from "react-redux";
+import { useDispatch, useSelector} from "react-redux";
+import { getAllOrdersForAdmin, getOrderDetailsForAdmin, UpdateOrderStatus ,resetOrderState} from "@/store/admin/order-slice";
+import { useToast } from "@/hooks/use-toast";
 
 const initialFormData={
     status: '',
@@ -15,9 +17,22 @@ function AdminOrderDetailsView({orderDetails}){
     
     const [formData,setFormData]= useState(initialFormData);
     const { user } = useSelector((state)=>state.auth);
+    const dispatch = useDispatch();
+    const {toast}= useToast();
 
     function handleUpdateStatus(event){
         event.preventDefault();
+        const {status} = formData;
+        dispatch(UpdateOrderStatus({id: orderDetails?._id, orderStatus:status})).then(data =>{
+            if(data?.payload?.success){
+                dispatch(getOrderDetailsForAdmin(orderDetails?._id));
+                dispatch(getAllOrdersForAdmin())
+                setFormData(initialFormData)
+                toast({
+                    title: data?.payload?.message
+                })
+            }
+        })
     }
     return (
         <DialogContent className='sm:max-w-[600px]'>
@@ -46,7 +61,7 @@ function AdminOrderDetailsView({orderDetails}){
                     <div className="flex mt-2 items-center justify-between">
                         <p className="font-medium">Order Status</p>
                         <Label>
-                            <Badge className={`py-1 px-3 ${orderDetails?.orderStatus ==='paid' ? 'bg-green-500':'bg-black'}`}>{orderDetails?.orderStatus}</Badge>
+                            <Badge className={`py-1 px-3 ${orderDetails?.orderStatus ==='paid' ? 'bg-green-500' : orderDetails?.orderStatus ==='rejected' ? 'bg-red-600' :'bg-black'}`}>{orderDetails?.orderStatus}</Badge>
                         </Label>
                     </div>
                 </div> 

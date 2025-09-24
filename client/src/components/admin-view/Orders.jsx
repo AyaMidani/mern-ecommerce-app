@@ -5,7 +5,7 @@ import { Dialog } from "@radix-ui/react-dialog";
 import { useState,useEffect } from "react";
 import AdminOrderDetailsView from "./order-details";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllOrdersForAdmin, getOrderDetailsForAdmin } from "@/store/admin/order-slice";
+import { getAllOrdersForAdmin, getOrderDetailsForAdmin,resetOrderState } from "@/store/admin/order-slice";
 import { Badge } from "../ui/badge";
 
 function AdminOrdersView(){
@@ -53,7 +53,7 @@ function AdminOrdersView(){
                             <TableCell>{orderItem?._id}</TableCell>
                             <TableCell>{orderItem?.orderDate.split("T")[0]}</TableCell>
                             <TableCell>
-                                <Badge className={`py-1 px-3 ${orderItem?.orderStatus ==='paid' ? 'bg-green-500':'bg-black'}`}>{orderItem?.orderStatus}</Badge>
+                                <Badge className={`py-1 px-3 ${orderItem?.orderStatus ==='paid' ? 'bg-green-500' : orderItem?.orderStatus ==='rejected' ? 'bg-red-600' :'bg-black'}`}>{orderItem?.orderStatus}</Badge>
                             </TableCell>
                             <TableCell>${orderItem?.totalAmount}</TableCell>
                             <TableCell>

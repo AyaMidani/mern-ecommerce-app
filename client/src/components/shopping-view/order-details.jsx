@@ -2,7 +2,7 @@ import { Label } from "@radix-ui/react-label";
 import { DialogContent } from "../ui/dialog";
 import { Separator } from "../ui/separator";
 import { Badge } from "../ui/badge";
-import { useDispatch ,useSelector} from "react-redux";
+import { useSelector} from "react-redux";
 
 function ShoppingOrderDetailsView({orderDetails}){
     const { user } = useSelector((state)=>state.auth);
@@ -33,7 +33,7 @@ function ShoppingOrderDetailsView({orderDetails}){
                     <div className="flex mt-2 items-center justify-between">
                         <p className="font-medium">Order Status</p>
                         <Label>
-                            <Badge className={`py-1 px-3 ${orderDetails?.orderStatus ==='paid' ? 'bg-green-500':'bg-black'}`}>{orderDetails?.orderStatus}</Badge>
+                            <Badge className={`py-1 px-3 ${orderDetails?.orderStatus ==='paid' ? 'bg-green-500' : orderDetails?.orderStatus ==='rejected' ? 'bg-red-600' :'bg-black'}`}>{orderDetails?.orderStatus}</Badge>
                         </Label>
                     </div>
                 </div>

@@ -208,7 +208,7 @@ const getAllOrdersByUser = async(req,res)=>{
     }
 }
 
-  const getOrderDetails = async(req,res)=>{
+const getOrderDetails = async(req,res)=>{
     try {
       const {id} = req.params;
       const order = await Order.findById(id);
