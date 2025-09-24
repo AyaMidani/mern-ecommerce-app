@@ -3,6 +3,7 @@ const Iyzipay = require('iyzipay');
 const iyzico = require('../../helpers/iyzipay');
 const Order = require('../../models/Order');
 const Cart = require('../../models/Cart');
+const Product = require('../../models/Products');
 
 // POST /api/shop/order/create
 const createOrder = async (req, res) => {
@@ -125,21 +126,20 @@ const capturePayment = async (req, res) => {
     iyzico.checkoutForm.retrieve({ token }, async (err, result) => {
       console.log('IYZI RETRIEVE RESP:', JSON.stringify({ err, result }, null, 2));
 
-      // in capturePayment
-const ok = !err && result?.status === 'success' && result?.paymentStatus === 'SUCCESS';
+      const ok = !err && result?.status === 'success' && result?.paymentStatus === 'SUCCESS';
 
-const conversationId =
-  result?.conversationId
-  || req.query.orderId           // from your callbackUrl ?orderId=...
-  || result?.basketId;           // fallback when conversationId is omitted
+      const conversationId =
+        result?.conversationId ||
+        req.query.orderId ||
+        result?.basketId;
 
-const paymentId = result?.paymentId || null;
+      const paymentId = result?.paymentId || null;
 
-// ... update order with conversationId ...
-
+      // define here so it's visible later
+      let orderDoc = null;
 
       if (conversationId) {
-        const orderDoc = await Order.findByIdAndUpdate(
+        orderDoc = await Order.findByIdAndUpdate(
           conversationId,
           {
             paymentStatus: ok ? 'paid' : 'failed',
@@ -150,21 +150,50 @@ const paymentId = result?.paymentId || null;
           { new: true }
         ).lean();
 
+        // clear cart only on success
         if (ok && orderDoc) {
           if (orderDoc.cartId) {
             await Cart.findByIdAndDelete(orderDoc.cartId).catch(() => {});
           } else if (orderDoc.userId) {
             await Cart.findOneAndUpdate(
               { userId: orderDoc.userId },
-              { $set: { items: [] } } // adjust if your Cart schema uses a different field
+              { $set: { items: [] } }
             ).catch(() => {});
           }
+
+          // ↓↓↓ YOUR WAY: decrement stock item by item (fixes applied)
+          if (Array.isArray(orderDoc.CartItems)) {
+            for (const item of orderDoc.CartItems) {
+              try {
+                const qty = Number(item.quantity || 1);
+                const product = await Product.findById(item.productId);
+                if (!product) {
+                  console.warn(`Product not found for id ${item.productId}`);
+                  continue; // or decide to mark order failed
+                }
+                if (typeof product.totalStock !== 'number') {
+                  product.totalStock = Number(product.totalStock || 0);
+                }
+                // optional guard
+                if (product.totalStock < qty) {
+                  console.warn(`Not enough stock for ${product.title} (have ${product.totalStock}, need ${qty})`);
+                  // you can choose to mark order failed here if you want
+                  // continue;
+                }
+                product.totalStock = Math.max(0, product.totalStock - qty);
+                await product.save();
+              } catch (e) {
+                console.error('Stock update error for item', item.productId, e);
+              }
+            }
+          }
+          // ↑↑↑ end stock update
         }
       }
 
       // Build success/failure URLs with params
       const successBase = process.env.FRONTEND_SUCCESS_URL || 'http://localhost:5173/shop/iyzico-return';
-      const failureBase = process.env.FRONTEND_FAILURE_URL || 'http://localhost:5173/shop/failure';
+      const failureBase = process.env.FRONTEND_FAILURE_URL || 'http://localhost:5173/shop/payment-failure';
 
       const successUrl = new URL(successBase);
       const failureUrl = new URL(failureBase);
@@ -179,10 +208,10 @@ const paymentId = result?.paymentId || null;
     });
   } catch (error) {
     console.error(error);
-    const failureBase = process.env.FRONTEND_FAILURE_URL || 'http://localhost:5173/shop/failure';
+    const failureBase = process.env.FRONTEND_FAILURE_URL || 'http://localhost:5173/shop/payment-failure';
     return res.redirect(failureBase);
   }
-}
+};
 
 const getAllOrdersByUser = async(req,res)=>{
     try {
