@@ -206,7 +206,7 @@ const getAllOrdersByUser = async(req,res)=>{
             message: "Error occured",
         });
     }
-  }
+}
 
   const getOrderDetails = async(req,res)=>{
     try {
@@ -228,6 +228,6 @@ const getAllOrdersByUser = async(req,res)=>{
             message: "Error occured",
         });
     }
-  } 
+} 
 
 module.exports = { createOrder, capturePayment,getAllOrdersByUser,getOrderDetails};
