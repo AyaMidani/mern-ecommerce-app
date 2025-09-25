@@ -43,12 +43,20 @@ function ProductDetailsDialog({open,setOpen,productDetails}){
                     title: 'Review added successfully'
                 })
             }
+            else{
+                toast({
+                    title: 'You cannot Review this item.',
+                    variant: 'destructive'
+                }) 
+            }
         })
     }
 
     useEffect(()=>{
         if(productDetails !== null) dispatch(getReviews(productDetails?._id))
     },[productDetails])
+
+
     function handleAddToCart(getCurrentProductId,getTotalStock){
             let getCartItems = cartItems.items || [];
             if(getCartItems.length){
@@ -80,6 +88,9 @@ function ProductDetailsDialog({open,setOpen,productDetails}){
             setRating(0)
             setReviewMsg('')
         }
+
+    const averageReview = reviews.length && reviews.length > 0 ?
+    reviews.reduce((sum,reviewItem)=> sum+reviewItem.reviewValue,0)/reviews.length : 0
     return (
         <Dialog open={open} onOpenChange={handleDialogClose}>
             <DialogContent className="grid grid-cols-2 gap-8 sm:p-12 max-w-[90vw] sm:max-w-[80vw] lg:max-w-[70vw]">
@@ -106,13 +117,9 @@ function ProductDetailsDialog({open,setOpen,productDetails}){
                     </div>
                 <div className="flex items-center gap-2 mt-2">
                      <div className="flex items-center gap-0.5">
-                                <StarIcon className="w-5 h-5 fill-primary" />
-                                <StarIcon className="w-5 h-5 fill-primary" />
-                                <StarIcon className="w-5 h-5 fill-primary" />
-                                <StarIcon className="w-5 h-5 fill-primary" />
-                                <StarIcon className="w-5 h-5 fill-primary" />
+                        <StarRatingComponent rating={averageReview} />
                     </div>
-                    <span className="text-muted-foreground">(4.5)</span> 
+                    <span className="text-muted-foreground">{averageReview.toFixed(2)}</span> 
                 </div>
                 <div className="mt-5 mb-5">
                     {
