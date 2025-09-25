@@ -3,10 +3,10 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../ui/card
 import { Label } from "../ui/label";
 
 
-function AddressCard({addressInfo,handleDeleteAddress,handleEditAddress,setcurrentSelectedAddress}){
+function AddressCard({addressInfo,handleDeleteAddress,handleEditAddress,setcurrentSelectedAddress,selectedId}){
     return (
-        <Card onClick={setcurrentSelectedAddress ? ()=> setcurrentSelectedAddress(addressInfo): null}>
-            <CardContent className="grid p-4 gap-4">
+        <Card className={`cursor-pointer border-red-700 ${selectedId._id === addressInfo?._id ? 'border-red-900 border-[4px]': 'border-black'}`} onClick={setcurrentSelectedAddress ? ()=> setcurrentSelectedAddress(addressInfo): null}>
+            <CardContent className={`${selectedId._id === addressInfo?._id ? 'border-black': ''} grid p-4 gap-4`}>
                 <Label>Address: {addressInfo?.address}</Label>
                 <Label>City: {addressInfo?.city}</Label>
                 <Label>Pincode: {addressInfo?.pincode}</Label>
