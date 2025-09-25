@@ -23,6 +23,7 @@ import ShoppingAccount from "./pages/auth/shopping-view/account";
 import IyzicoReturnPage from "./pages/auth/shopping-view/iyzico-return";
 import PaymentSuccessPage from "./pages/auth/shopping-view/payment-success";
 import PaymentFailurePage from "./pages/auth/shopping-view/payment-failure";
+import SearchProducts from "./pages/auth/shopping-view/search";
 
 
 function App() {
@@ -70,6 +71,7 @@ function App() {
           <Route path="iyzico-return" element={<IyzicoReturnPage />}/>
           <Route path="payment-success" element={<PaymentSuccessPage />}/>
           <Route path="payment-failure" element={<PaymentFailurePage />}/>
+          <Route path="search" element={<SearchProducts />}/>
         </Route>
         <Route path="/unauth-page" element={< UnauthPage/>}></Route>
         <Route path="/*" element={< NotFound/>}></Route>
