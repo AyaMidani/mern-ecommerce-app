@@ -27,11 +27,9 @@ const searchSlice = createSlice({
             state.isLoading=true;
             }).addCase(getSearchResults.fulfilled,(state,action)=>{
                 state.isLoading=false;
-                console.log(action.payload.data)
                 state.searchResults=action.payload.data;
             }).addCase(getSearchResults.rejected,(state)=>{
                 state.isLoading=false;
-                console.log(state.error)
                 state.searchResults=[];
             })
     }

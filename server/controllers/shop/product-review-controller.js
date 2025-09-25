@@ -4,7 +4,7 @@ const Product = require('../../models/Products')
 
 const addProductReview  = async(req,res)=>{
     try {
-        const {productId,userId,userName,reviewMessage,reviewValue} = req.body;
+        const {productId,userId,userName,reviewMessage,reviewValue} = req.body.data;
         const order = await Order.findOne({
             userId,
             "CartItems.productId" : productId,
