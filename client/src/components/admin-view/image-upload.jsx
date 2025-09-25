@@ -6,7 +6,7 @@ import { Button } from "../ui/button";
 import axios from "axios";
 import { Skeleton } from "../ui/skeleton";
 
-function ProductImageUpload({ImageFile,setImageFile,uploadedImageUrl,setuploadedImageUrl,setimageLoadingState, imageLoadingState, isEditMode, currentEditedId}){
+function ProductImageUpload({ImageFile,setImageFile,uploadedImageUrl,setuploadedImageUrl,setimageLoadingState, imageLoadingState, isEditMode, currentEditedId,isCustomeStyling=false}){
     const inputRef = useRef(null)
     function handleImageFileChange(event){
         console.log(event.target.files)
@@ -36,7 +36,6 @@ function ProductImageUpload({ImageFile,setImageFile,uploadedImageUrl,setuploaded
         const data = new FormData();
         data.append('my_file', ImageFile);
         const response = await axios.post('http://localhost:5001/api/admin/products/upload-image', data)
-        console.log(response.data)
         if(response.data.success) {
             setuploadedImageUrl(response.data.result.url);
             setimageLoadingState(false);
@@ -45,7 +44,7 @@ function ProductImageUpload({ImageFile,setImageFile,uploadedImageUrl,setuploaded
     useEffect(()=>{if(ImageFile!== null) uploadImageToCloudinary();},[ImageFile])
     
     return (
-        <div className="w-full max-w-md mx-auto mt-4">
+        <div className={`w-full mt-4 ${isCustomeStyling ? '': 'max-w-md mx-auto'}`}>
             <Label className="text-lg font-semibold mb-2 block">
                 Upload Image
             </Label>

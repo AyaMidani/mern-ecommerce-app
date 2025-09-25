@@ -1,7 +1,4 @@
 import { Button } from '@/components/ui/button'
-import bannerOne from '../../../assets/banner-1.webp'
-import bannerTwo from '../../../assets/banner-2.webp'
-import bannerThree from '../../../assets/banner-3.webp'
 import { Airplay, BabyIcon, ChevronLeftIcon, ChevronRightIcon, CloudLightning, Heater, Images, Shirt, ShirtIcon, ShoppingBasket, UmbrellaIcon, WashingMachine, WatchIcon } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { useEffect, useState } from 'react';
@@ -12,9 +9,9 @@ import { useNavigate} from "react-router-dom";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { useToast } from "@/hooks/use-toast";   
 import ProductDetailsDialog from "@/components/shopping-view/product-details";
+import { getFeatureImages } from '@/store/common-slice'
 
 function ShoppingHome(){
-    const slides = [bannerOne,bannerTwo,bannerThree];
     const [currentSlide,setCurrentSlide] = useState(0);
     const {productList,productDetails} = useSelector((state)=>state.shopProducts);
     const [openDetailsDialog, setOpenDetailsDialog] = useState(false);
@@ -22,6 +19,8 @@ function ShoppingHome(){
     const navigate=useNavigate();
     const dispatch=useDispatch();
     const {toast}=useToast();
+    const { featureImageList } = useSelector((state)=> state.commonFeature)
+ 
 
     const brandsWithIcon =[
     { id: "nike", label: "Nike", icon : Shirt },
@@ -63,10 +62,10 @@ function ShoppingHome(){
     }
     useEffect(()=>{
         const timer = setInterval(()=>{
-            setCurrentSlide(prevSlide =>(prevSlide+1) %slides.length)
-        },5000)
+            setCurrentSlide(prevSlide =>(prevSlide+1) %featureImageList.length)
+        },3000)
         return ()=>clearInterval(timer)
-    },[])
+    },[featureImageList])
 
     useEffect(()=>{
         dispatch(fetchAllFilteredProducts({filterParams:{},sortParams: 'price-lowtohigh'}))
@@ -76,21 +75,27 @@ function ShoppingHome(){
         if(productDetails !==null) setOpenDetailsDialog(true)
     },[productDetails])
 
+    useEffect(()=>{
+         dispatch(getFeatureImages())
+    },[dispatch])
     return(
         <div className="flex flex-col min-h-screen">
             <div className="relative w-full h-[600px] overflow-hidden">
-                {
-                    slides.map((slide,index) => <img
-                    src={slide}
-                    key={index}
-                    className={`${index === currentSlide ? 'opacity-100' : 'opacity-0'} absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000`}
-                     />)
+                {featureImageList && featureImageList.length > 0
+                    ? featureImageList.map((slide, index) => (
+                        <img
+                        src={slide?.image}
+                        key={slide._id || index} // use _id if available
+                        className={`${index === currentSlide ? 'opacity-100' : 'opacity-0'} absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000`}
+                        />
+                    ))
+                    : null
                 }
                 <Button 
-                variant="outline" size="icon" className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/100" onClick={()=>setCurrentSlide(prevSlide=>(prevSlide - 1 + slides.length) % slides.length)}>
+                variant="outline" size="icon" className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/100" onClick={()=>setCurrentSlide(prevSlide=>(prevSlide - 1 + featureImageList.length) % featureImageList.length)}>
                     <ChevronLeftIcon className='w-4 h-4' />
                 </Button>
-                <Button variant="outline" size="icon" className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/100" onClick={()=>setCurrentSlide(prevSlide=>(prevSlide + 1) % slides.length)}>
+                <Button variant="outline" size="icon" className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/100" onClick={()=>setCurrentSlide(prevSlide=>(prevSlide + 1) % featureImageList.length)}>
                     <ChevronRightIcon className='w-4 h-4' />
                 </Button>
             </div>
