@@ -1,4 +1,4 @@
-import AdminOrdersView from "@/components/admin-view/orders";
+import AdminOrdersView from "@/components/admin-view/Orders";
 
 function AdminOrders(){
     return(
