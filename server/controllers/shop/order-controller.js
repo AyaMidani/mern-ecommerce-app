@@ -192,8 +192,8 @@ const capturePayment = async (req, res) => {
       }
 
       // Build success/failure URLs with params
-      const successBase = process.env.FRONTEND_SUCCESS_URL || 'http://localhost:5173/shop/iyzico-return';
-      const failureBase = process.env.FRONTEND_FAILURE_URL || 'http://localhost:5173/shop/payment-failure';
+      const successBase = process.env.FRONTEND_SUCCESS_URL || `${process.env.CLIENT_BASE_URL}/shop/iyzico-return`;
+      const failureBase = process.env.FRONTEND_FAILURE_URL || `${process.env.CLIENT_BASE_URL}/shop/payment-failure`;
 
       const successUrl = new URL(successBase);
       const failureUrl = new URL(failureBase);
@@ -208,7 +208,7 @@ const capturePayment = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    const failureBase = process.env.FRONTEND_FAILURE_URL || 'http://localhost:5173/shop/payment-failure';
+    const failureBase = process.env.FRONTEND_FAILURE_URL || `${process.env.CLIENT_BASE_URL}/shop/payment-failure`;
     return res.redirect(failureBase);
   }
 };

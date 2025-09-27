@@ -18,7 +18,7 @@ export const createNewOrder = createAsyncThunk(
   async (orderData, { rejectWithValue }) => {
     try {
       const { data } = await axios.post(
-        'http://localhost:5001/api/shop/order/create',
+        `${import.meta.env.VITE_API_URL}/api/shop/order/create`,
         orderData,
         { withCredentials: true }
       );
@@ -34,7 +34,7 @@ export const fetchOrderById = createAsyncThunk(
   'order/fetchOrderById',
   async (orderId, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`http://localhost:5001/api/shop/order/${orderId}`, { withCredentials: true });
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/order/${orderId}`, { withCredentials: true });
       if (!data?.success || !data?.order) {
         return rejectWithValue('Order not found');
       }
@@ -47,14 +47,14 @@ export const fetchOrderById = createAsyncThunk(
 
 export const getAllOrdersByUserId= createAsyncThunk('order/getAllOrdersByUserId',
   async(userId)=>{
-    const response= await axios.get(`http://localhost:5001/api/shop/order/list/${userId}`);
+    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/order/list/${userId}`);
     return response?.data;
   }
 )
 
 export const getOrderDetails= createAsyncThunk('order/getOrderDetails',
   async(id)=>{
-    const response= await axios.get(`http://localhost:5001/api/shop/order/details/${id}`);
+    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/order/details/${id}`);
     return response?.data;
   }
 )

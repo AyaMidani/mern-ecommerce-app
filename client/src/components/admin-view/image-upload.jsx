@@ -35,7 +35,7 @@ function ProductImageUpload({ImageFile,setImageFile,uploadedImageUrl,setuploaded
         setimageLoadingState(true)
         const data = new FormData();
         data.append('my_file', ImageFile);
-        const response = await axios.post('http://localhost:5001/api/admin/products/upload-image', data)
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/admin/products/upload-image`, data)
         if(response.data.success) {
             setuploadedImageUrl(response.data.result.url);
             setimageLoadingState(false);

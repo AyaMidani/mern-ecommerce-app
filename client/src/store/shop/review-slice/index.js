@@ -9,14 +9,14 @@
 
   export const addReview= createAsyncThunk('product/addReview',
     async(data)=>{
-      const response= await axios.post(`http://localhost:5001/api/shop/review/add`,{data});
+      const response= await axios.post(`${import.meta.env.VITE_API_URL}/api/shop/review/add`,{data});
       return response?.data;
     }
   )
 
   export const getReviews= createAsyncThunk('product/getReviews',
     async(id)=>{ 
-      const response= await axios.get(`http://localhost:5001/api/shop/review/${id}`);
+      const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/review/${id}`);
       return response?.data;
     }
   )

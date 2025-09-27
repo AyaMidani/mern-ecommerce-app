@@ -10,7 +10,7 @@ const initialState = {
 
 export const fetchProductDetails= createAsyncThunk('product/fetchProductDetails',
   async(id)=>{ 
-    const response= await axios.get(`http://localhost:5001/api/shop/products/get/${id}`);
+    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/products/get/${id}`);
     return response?.data;
   }
 )
@@ -21,7 +21,7 @@ export const fetchAllFilteredProducts= createAsyncThunk('product/fetchAllProduct
       ...filterParams,
       sortBy: sortParams
     })
-    const response= await axios.get(`http://localhost:5001/api/shop/products/get?${query}`);
+    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/products/get?${query}`);
     return response.data
   }
 )

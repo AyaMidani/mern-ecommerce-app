@@ -9,28 +9,28 @@ const initialState = {
 
 export const addNewAddress= createAsyncThunk('address/addNewAddress',
   async(formData)=>{ 
-    const response= await axios.post('http://localhost:5001/api/shop/address/add',formData);
+    const response= await axios.post(`${import.meta.env.VITE_API_URL}/api/shop/address/add`,formData);
     return response?.data;
   }
 )
 
 export const fetchAllAddresses= createAsyncThunk('address/fetchAllAddresses',
   async(userId)=>{ 
-    const response= await axios.get(`http://localhost:5001/api/shop/address/get/${userId}`);
+    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/address/get/${userId}`);
     return response?.data;
   } 
 )
 
 export const editAddress= createAsyncThunk('address/editAddress',
   async({userId,addressId,formData})=>{ 
-    const response= await axios.put(`http://localhost:5001/api/shop/address/update/${userId}/${addressId}`,formData);
+    const response= await axios.put(`${import.meta.env.VITE_API_URL}/api/shop/address/update/${userId}/${addressId}`,formData);
     return response?.data;
   }
 )
 
 export const deleteAddress= createAsyncThunk('address/deleteAddress',
   async({userId,addressId})=>{
-    const response= await axios.delete(`http://localhost:5001/api/shop/address/delete/${userId}/${addressId}`);
+    const response= await axios.delete(`${import.meta.env.VITE_API_URL}/api/shop/address/delete/${userId}/${addressId}`);
     return response?.data;
   }
 )
