@@ -5,6 +5,7 @@ const initialState = {
   isAuthenticated: false,
   isLoading: true,
   user: null,
+  token:null
 };
 export const registerUser= createAsyncThunk('auth/register',
   async(formData)=>{
@@ -33,12 +34,28 @@ export const logoutUser= createAsyncThunk('auth/logout',
   }
 )
 
-export const checkAuth= createAsyncThunk('auth/checkAuth',
+/*export const checkAuth= createAsyncThunk('auth/checkAuth',
   async()=>{
     const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/check-auth`,
       {
         withCredentials: true,
         headers:{
+          'Cache-Control': 'no-store, no-cashe, must-revalidate, proxy-revalidate',
+          Expires: '0'
+        }
+      }
+    );
+    return response.data
+  }
+)*/
+
+
+export const checkAuth= createAsyncThunk('auth/checkAuth',
+  async(token)=>{
+    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/check-auth`,
+      {
+        headers:{
+          Authorization: `Bearer ${token}`,
           'Cache-Control': 'no-store, no-cashe, must-revalidate, proxy-revalidate',
           Expires: '0'
         }
@@ -54,6 +71,11 @@ const authSlice = createSlice({
   reducers: {
     setUser:(state,action)=>{
     },
+    resetTokenAndCredentials: (state)=>{
+      state.isAuthenticated = false;
+      state.user = null
+      state.token = null
+    }
   },
     extraReducers :(builder) =>{
       builder.addCase(registerUser.pending,(state)=>{
@@ -72,10 +94,13 @@ const authSlice = createSlice({
         state.isLoading=false;
         state.user= action.payload.success ? action.payload.user : null;
         state.isAuthenticated=action.payload.success;
+        state.token = action.payload.token
+        sessionStorage.setItem('token',JSON.stringify(action.payload.token))
       }).addCase(loginUser.rejected,(state)=>{
         state.isLoading=false;
         state.user=null;
         state.isAuthenticated=false;
+        state.token = null;
       }).addCase(checkAuth.pending,(state)=>{
         state.isLoading=true;
       }).addCase(checkAuth.fulfilled,(state,action)=>{
@@ -98,5 +123,5 @@ const authSlice = createSlice({
     }
 });
 
-export const {setUser}=authSlice.actions;
+export const {setUser,resetTokenAndCredentials}=authSlice.actions;
 export default authSlice.reducer;

@@ -4,7 +4,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import { shoppingViewHeaderMenuItems } from "@/config";
-import { logoutUser } from "@/store/auth-slice";
+import { logoutUser, resetTokenAndCredentials } from "@/store/auth-slice";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -49,7 +49,10 @@ function HeaderRightContent(){
      const navigate =useNavigate();
      const dispatch = useDispatch();
      function handleLogout(){
-        dispatch(logoutUser())
+        //dispatch(logoutUser())
+        dispatch(resetTokenAndCredentials())
+        sessionStorage.clear();
+        navigate("/auth/login")
      }
      useEffect(()=>{
         dispatch(fetchCartItems({userId: user?.id}))
