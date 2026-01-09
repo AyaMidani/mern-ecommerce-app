@@ -7,10 +7,17 @@ const initialState = {
   productList: [],
   productDetails: null
 };
+const getAuthHeaders = () => {
+  const token = JSON.parse(sessionStorage.getItem('token'));
+  return {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  };
+};
 
 export const fetchProductDetails= createAsyncThunk('product/fetchProductDetails',
   async(id)=>{ 
-    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/products/get/${id}`);
+    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/products/get/${id}`,{ headers: getAuthHeaders() },);
     return response?.data;
   }
 )
@@ -21,7 +28,7 @@ export const fetchAllFilteredProducts= createAsyncThunk('product/fetchAllProduct
       ...filterParams,
       sortBy: sortParams
     })
-    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/products/get?${query}`);
+    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/products/get?${query}`,{ headers: getAuthHeaders() },);
     return response.data
   }
 )

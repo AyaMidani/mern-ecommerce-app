@@ -7,33 +7,60 @@ const initialState = {
   cartItems: [],
 };
 
-export const addToCart= createAsyncThunk('cart/addToCart',
-  async({userId,productId,quantity})=>{
-    const response= await axios.post(`${import.meta.env.VITE_API_URL}/api/shop/cart/add`,{userId,productId,quantity});
-    return response?.data;
-  }
-)
+const getAuthHeaders = () => {
+  const token = JSON.parse(sessionStorage.getItem('token'));
+  return {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json'
+  };
+};
 
-export const fetchCartItems= createAsyncThunk('cart/fetchCartItems',
-  async({userId})=>{ 
-    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/cart/get/${userId}`);
+export const addToCart = createAsyncThunk(
+  'cart/addToCart',
+  async ({ userId, productId, quantity }) => {
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_URL}/api/shop/cart/add`,
+      { userId, productId, quantity },
+      { headers: getAuthHeaders() }
+    );
     return response?.data;
   }
-)
+);
 
-export const deleteCartItem= createAsyncThunk('cart/deleteCartItem',
-  async({userId,productId})=>{
-    const response= await axios.delete(`${import.meta.env.VITE_API_URL}/api/shop/cart/${userId}/${productId}`);
+export const fetchCartItems = createAsyncThunk(
+  'cart/fetchCartItems',
+  async ({ userId }) => {
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_URL}/api/shop/cart/get/${userId}`,
+      { headers: getAuthHeaders() }
+    );
     return response?.data;
   }
-)
+);
 
-export const updateCartQuantity= createAsyncThunk('cart/updateCartQuantity',
-  async({userId,productId,quantity})=>{ 
-    const response= await axios.put(`${import.meta.env.VITE_API_URL}/api/shop/cart/update-cart`,{userId,productId,quantity});
+export const deleteCartItem = createAsyncThunk(
+  'cart/deleteCartItem',
+  async ({ userId, productId }) => {
+    const response = await axios.delete(
+      `${import.meta.env.VITE_API_URL}/api/shop/cart/${userId}/${productId}`,
+      { headers: getAuthHeaders() }
+    );
     return response?.data;
   }
-)
+);
+
+export const updateCartQuantity = createAsyncThunk(
+  'cart/updateCartQuantity',
+  async ({ userId, productId, quantity }) => {
+    const response = await axios.put(
+      `${import.meta.env.VITE_API_URL}/api/shop/cart/update-cart`,
+      { userId, productId, quantity },
+      { headers: getAuthHeaders() }
+    );
+    return response?.data;
+  }
+);
+
 
 const shoppingCartSlice = createSlice({
     name: 'shoppingCart',

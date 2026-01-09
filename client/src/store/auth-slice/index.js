@@ -34,22 +34,6 @@ export const logoutUser= createAsyncThunk('auth/logout',
   }
 )
 
-/*export const checkAuth= createAsyncThunk('auth/checkAuth',
-  async()=>{
-    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/check-auth`,
-      {
-        withCredentials: true,
-        headers:{
-          'Cache-Control': 'no-store, no-cashe, must-revalidate, proxy-revalidate',
-          Expires: '0'
-        }
-      }
-    );
-    return response.data
-  }
-)*/
-
-
 export const checkAuth= createAsyncThunk('auth/checkAuth',
   async(token)=>{
     const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/check-auth`,

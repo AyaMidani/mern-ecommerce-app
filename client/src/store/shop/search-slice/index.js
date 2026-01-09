@@ -7,9 +7,17 @@ const initialState = {
   searchResults: [],
 };
 
+const getAuthHeaders = () => {
+  const token = JSON.parse(sessionStorage.getItem('token'));
+  return {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  };
+};
+
 export const getSearchResults= createAsyncThunk('product/getSearchResults',
   async(keyword)=>{ 
-    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/search/${keyword}`);
+    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/search/${keyword}`,{ headers: getAuthHeaders() });
     return response?.data;
   }
 )

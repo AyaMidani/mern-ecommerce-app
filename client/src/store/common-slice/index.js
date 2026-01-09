@@ -7,19 +7,43 @@ const initialState = {
   featureImageList: [],
 };
 
-export const getFeatureImages= createAsyncThunk('common/getFeatureImages',
-  async()=>{
-    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/common/feature/get`);
-    return response?.data;
-  }
-)
+export const getFeatureImages = createAsyncThunk(
+  'common/getFeatureImages',
+  async () => {
+    const token = JSON.parse(sessionStorage.getItem('token'));
 
-export const addFeatureImage= createAsyncThunk('common/addFeatureImage',
-  async(image)=>{
-    const response= await axios.post(`${import.meta.env.VITE_API_URL}/api/common/feature/add`,{image});
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_URL}/api/common/feature/get`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
     return response?.data;
   }
-) 
+);
+
+
+export const addFeatureImage = createAsyncThunk(
+  'common/addFeatureImage',
+  async (image) => {
+    const token = JSON.parse(sessionStorage.getItem('token'));
+
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_URL}/api/common/feature/add`,
+      { image },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    return response?.data;
+  }
+);
 
 const commonSlice = createSlice({
     name: 'commonSlice',

@@ -12,6 +12,14 @@ const initialState = {
   orderList:[],
   orderDetails: null
 };
+const getAuthHeaders = () => {
+  const token = JSON.parse(sessionStorage.getItem('token'));
+  return {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  };
+};
+
 
 export const createNewOrder = createAsyncThunk(
   'order/createNewOrder',
@@ -20,6 +28,7 @@ export const createNewOrder = createAsyncThunk(
       const { data } = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/shop/order/create`,
         orderData,
+        { headers: getAuthHeaders() },
         { withCredentials: true }
       );
       if (!data?.success) return rejectWithValue(data?.message || 'Payment init failed');
@@ -34,7 +43,7 @@ export const fetchOrderById = createAsyncThunk(
   'order/fetchOrderById',
   async (orderId, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/order/${orderId}`, { withCredentials: true });
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/order/${orderId}`,{ headers: getAuthHeaders() }, { withCredentials: true });
       if (!data?.success || !data?.order) {
         return rejectWithValue('Order not found');
       }
@@ -47,14 +56,14 @@ export const fetchOrderById = createAsyncThunk(
 
 export const getAllOrdersByUserId= createAsyncThunk('order/getAllOrdersByUserId',
   async(userId)=>{
-    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/order/list/${userId}`);
+    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/order/list/${userId}`,{ headers: getAuthHeaders() });
     return response?.data;
   }
 )
 
 export const getOrderDetails= createAsyncThunk('order/getOrderDetails',
   async(id)=>{
-    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/order/details/${id}`);
+    const response= await axios.get(`${import.meta.env.VITE_API_URL}/api/shop/order/details/${id}`,{ headers: getAuthHeaders() });
     return response?.data;
   }
 )
