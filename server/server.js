@@ -54,3 +54,5 @@ app.use('/api/shop/review',shopReviewRouter)
 app.use('/api/common/feature',commonFeatureRouter )
 
 app.listen(PORT,()=>console.log(`Server is running on Port ${PORT}`))
+
+module.exports = app; 
