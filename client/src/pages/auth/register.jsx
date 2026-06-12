@@ -5,6 +5,8 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link , useNavigate} from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { UserPlus } from "lucide-react";
 
 function AuthRegister() {
   const initialState = {
@@ -35,32 +37,37 @@ function AuthRegister() {
           variant: 'destructive'
         });
       }
-        
+
     })
   }
   return (
-    <div className="mx-auto w-full max-w-md space-y-6">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Create New Account
-        </h1>
-        <p className="mt-2">
-          Already have an account
-          <Link
-            className="font-medium text-primary ml-2 hover:underline"
-            to="/auth/login"
-          >
-            Login
-          </Link>
-        </p>
-      </div>
-      <CommonForm
-        FormControles={registerFormControles}
-        formData={formData}
-        setFormData={setFormData}
-        onSubmit={onSubmit}
-        buttonText="Sign Up"
-      />
+    <div className="mx-auto w-full max-w-md">
+      <Card className="border-none shadow-xl">
+        <CardHeader className="items-center space-y-3 pb-2 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+            <UserPlus className="h-6 w-6 text-primary" />
+          </div>
+          <div className="space-y-1">
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">Create an account</h1>
+            <p className="text-sm text-muted-foreground">Sign up to start shopping with us</p>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <CommonForm
+            FormControles={registerFormControles}
+            formData={formData}
+            setFormData={setFormData}
+            onSubmit={onSubmit}
+            buttonText="Sign Up"
+          />
+          <p className="text-center text-sm text-muted-foreground">
+            Already have an account?
+            <Link className="font-medium text-primary ml-1 hover:underline" to="/auth/login">
+              Login
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
